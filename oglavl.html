@@ -217,7 +217,7 @@
                 const isMobile = window.innerWidth <= 768;
                 
                 modules.forEach(module => {
-                    module.style.width = isMobile ? 'calc(50% - 20px)' : 'calc(25% - 20px)';
+                    module.style.width = isMobile ? 'calc(50% - 200px)' : 'calc(25% - 200px)';
                     // Обновляем позицию соединительных линий
                     const connector = module.querySelector('.connector');
                     if (connector) {
