@@ -270,41 +270,17 @@
                 moduleName.textContent = module.desc;
                 moduleDiv.appendChild(moduleName);
                 
-                // Если это текущий модуль - добавляем маркер
-                if (module.current) {
-                    // Создаем элемент для текущего курса
-                    const currentText = document.createElement('div');
-                    currentText.innerHTML = `<b>ты тут!</b>`;
-                    currentText.style.display = 'inline-block';
-                    currentText.style.padding = '10px 20px';
-                    currentText.style.border = '4px solid #FFA500';
-                    currentText.style.borderRadius = '8px';
-                    currentText.style.marginTop = '20px';
-                    currentText.style.position = 'relative';
-                    currentText.style.backgroundColor = '#FEF4EB';
-                    currentText.id = 'currentCourseMarker';
-                    
-                    currentCourseDiv.appendChild(currentText);
-                    
-                    // Добавляем стили для соединительной линии
-                    const style = document.createElement('style');
-                    style.textContent = `
-                        #currentCourseMarker::before {
-                            content: '';
-                            position: absolute;
-                            top: -21px;
-                            left: 50%;
-                            width: 5px;
-                            height: 20px;
-                            background-color: #FFA500;
-                            transform: translateX(-50%);
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
-                
                 modulesContainer.appendChild(moduleDiv);
             });
+            
+            // Функция для проверки видимости элемента в viewport
+            function isElementInViewport(el) {
+                const rect = el.getBoundingClientRect();
+                return (
+                    rect.left >= 0 &&
+                    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                );
+            }
             
             // Функция для обновления позиции маркера "ты тут!"
             function updateCurrentCoursePosition() {
@@ -312,13 +288,21 @@
                 const currentMarker = document.getElementById('currentCourseMarker');
                 
                 if (currentModule && currentMarker) {
-                    const moduleRect = currentModule.getBoundingClientRect();
-                    const wrapperRect = modulesWrapper.getBoundingClientRect();
-                    
-                    const centerPosition = moduleRect.left + moduleRect.width / 2 - wrapperRect.left;
-                    
-                    currentMarker.style.left = `${centerPosition - currentMarker.offsetWidth / 2}px`;
-                    currentMarker.style.position = 'absolute';
+                    // Проверяем, виден ли текущий модуль на экране
+                    if (isElementInViewport(currentModule)) {
+                        const moduleRect = currentModule.getBoundingClientRect();
+                        const wrapperRect = modulesWrapper.getBoundingClientRect();
+                        
+                        const centerPosition = moduleRect.left + moduleRect.width / 2 - wrapperRect.left;
+                        
+                        currentMarker.style.left = `${centerPosition - currentMarker.offsetWidth / 2}px`;
+                        currentMarker.style.position = 'absolute';
+                        currentMarker.style.display = 'inline-block';
+                    } else {
+                        currentMarker.style.display = 'none';
+                    }
+                } else if (currentMarker) {
+                    currentMarker.style.display = 'none';
                 }
             }
             
@@ -329,7 +313,7 @@
                 modulesPerScreen = isSmallMobile ? 1 : (isMobile ? 2 : 4);
                 const moduleWidth = 100 / modulesPerScreen;
                 const totalWidth = (modules.length * moduleWidth) - 100;
-                maxPosition = Math.max(0, totalWidth) - 10;
+                maxPosition = Math.max(0, totalWidth);
             }
             
             // Функция для обновления позиции модулей
@@ -391,7 +375,40 @@
                 updateCurrentCoursePosition();
             }
             
+            // Создаем маркер текущего курса
+            function createCurrentCourseMarker() {
+                const currentText = document.createElement('div');
+                currentText.innerHTML = `<b>ты тут!</b>`;
+                currentText.style.display = 'none'; // Сначала скрываем
+                currentText.style.padding = '10px 20px';
+                currentText.style.border = '4px solid #FFA500';
+                currentText.style.borderRadius = '8px';
+                currentText.style.marginTop = '20px';
+                currentText.style.position = 'relative';
+                currentText.style.backgroundColor = '#FEF4EB';
+                currentText.id = 'currentCourseMarker';
+                
+                // Добавляем стили для соединительной линии
+                const style = document.createElement('style');
+                style.textContent = `
+                    #currentCourseMarker::before {
+                        content: '';
+                        position: absolute;
+                        top: -21px;
+                        left: 50%;
+                        width: 5px;
+                        height: 20px;
+                        background-color: #FFA500;
+                        transform: translateX(-50%);
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                currentCourseDiv.appendChild(currentText);
+            }
+            
             // Инициализация
+            createCurrentCourseMarker();
             calculateMaxPosition();
             handleResize();
             window.addEventListener('resize', handleResize);
@@ -411,6 +428,9 @@
             }
             
             centerCurrentModule();
+            
+            // Обновляем видимость маркера при прокрутке
+            modulesWrapper.addEventListener('scroll', updateCurrentCoursePosition);
         });
     </script>
 </body>
