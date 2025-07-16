@@ -14,21 +14,118 @@
             object-fit: contain;
             margin-bottom: 10px;
         }
+        
+        /* Стили для мобильных устройств */
+        @media (max-width: 768px) {
+            .module {
+                width: calc(50% - 20px) !important;
+            }
+            .connector {
+                right: -25px !important;
+                width: 22px !important;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            body {
+                padding: 10px !important;
+            }
+            
+            /* Уменьшаем размеры в 2 раза */
+            .module {
+                padding: 10px 5px !important;
+                min-width: 100px !important;
+                border-width: 2px !important;
+                margin: 0 5px !important;
+                width: calc(50% - 10px) !important;
+            }
+            
+            .module-icon {
+                width: 20px !important;
+                height: 20px !important;
+                margin-bottom: 5px !important;
+            }
+            
+            .module div {
+                font-size: 0.8em !important;
+            }
+            
+            #prevBtn, #nextBtn {
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 16px !important;
+                top: -35px !important;
+            }
+            
+            #prevBtn {
+                right: 45px !important;
+            }
+            
+            #currentCourseMarker {
+                padding: 5px 10px !important;
+                border-width: 2px !important;
+                font-size: 0.8em !important;
+            }
+            
+            #currentCourseMarker::before {
+                top: -11px !important;
+                height: 10px !important;
+            }
+            
+            /* Прогресс-круг */
+            .progress-container {
+                width: 120px !important;
+                height: 120px !important;
+                margin-right: 10px !important;
+            }
+            
+            .progress-container svg {
+                width: 120px !important;
+                height: 120px !important;
+            }
+            
+            .progress-container div {
+                font-size: 24px !important;
+            }
+            
+            /* Логотип */
+            img[alt="Логотип"] {
+                max-height: 120px !important;
+                margin-left: 10px !important;
+            }
+            
+            /* Контейнер прогресса и логотипа */
+            .progress-logo-container {
+                flex-direction: column !important;
+                align-items: center !important;
+                margin-bottom: 20px !important;
+            }
+            
+            .progress-wrapper {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; max-width: 1200px; margin: 0 auto;">
     <!-- Прогресс и логотип -->
-    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 40px; flex-wrap: wrap;">
-        <!-- Круг прогресса -->
-        <div style="position: relative; width: 212px; height: 212px;">
-            <svg width="212" height="212" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
-                <circle cx="50" cy="50" r="45" stroke="#e0e0e0" stroke-width="10" fill="none"/>
-                <!-- Прогресс-бар (11% для 1 завершенного курса) -->
-                <circle cx="50" cy="50" r="45" stroke="#4CAF50" stroke-width="10" fill="none" 
-                        stroke-dasharray="14.13 251.514" stroke-linecap="round"/>
-            </svg>
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 32px;">
-                5%
+    <div class="progress-logo-container" style="display: flex; justify-content: center; align-items: center; margin-bottom: 40px; flex-wrap: wrap;">
+        <!-- Обертка для круга прогресса -->
+        <div class="progress-wrapper">
+            <!-- Круг прогресса -->
+            <div class="progress-container" style="position: relative; width: 212px; height: 212px;">
+                <svg width="212" height="212" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                    <circle cx="50" cy="50" r="45" stroke="#e0e0e0" stroke-width="10" fill="none"/>
+                    <!-- Прогресс-бар (11% для 1 завершенного курса) -->
+                    <circle cx="50" cy="50" r="45" stroke="#4CAF50" stroke-width="10" fill="none" 
+                            stroke-dasharray="14.13 251.514" stroke-linecap="round"/>
+                </svg>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 32px;">
+                    5%
+                </div>
             </div>
         </div>
         
@@ -89,7 +186,7 @@
                 const moduleDiv = document.createElement('div');
                 moduleDiv.className = 'module';
                 moduleDiv.style.position = 'relative';
-                moduleDiv.style.width = 'calc(25% - 200px)';
+                moduleDiv.style.width = 'calc(25% - 20px)';
                 moduleDiv.style.margin = '0 10px';
                 moduleDiv.style.padding = '20px 10px';
                 moduleDiv.style.textAlign = 'center';
@@ -215,14 +312,20 @@
             function handleResize() {
                 const modules = document.querySelectorAll('.module');
                 const isMobile = window.innerWidth <= 768;
+                const isSmallMobile = window.innerWidth <= 400;
                 
                 modules.forEach(module => {
-                    module.style.width = isMobile ? 'calc(50% - 200px)' : 'calc(25% - 200px)';
+                    if (isSmallMobile) {
+                        // Для очень маленьких экранов стили уже заданы в CSS
+                        return;
+                    }
+                    
+                    module.style.width = isMobile ? 'calc(50% - 20px)' : 'calc(25% - 20px)';
                     // Обновляем позицию соединительных линий
                     const connector = module.querySelector('.connector');
                     if (connector) {
-                        connector.style.right = isMobile ? '-24px' : '-24px';
-                        connector.style.width = isMobile ? '20px' : '24px';
+                        connector.style.right = isMobile ? '-14px' : '-24px';
+                        connector.style.width = isMobile ? '14px' : '24px';
                     }
                 });
                 
@@ -239,7 +342,8 @@
             
             function updateModulesPosition() {
                 const isMobile = window.innerWidth <= 768;
-                const modulesPerScreen = isMobile ? 2 : 4;
+                const isSmallMobile = window.innerWidth <= 400;
+                const modulesPerScreen = isSmallMobile ? 1 : (isMobile ? 2 : 4);
                 const moduleWidth = 100 / modulesPerScreen;
                 const totalWidth = (modules.length * moduleWidth) - 100;
                 const maxPosition = Math.max(0, totalWidth);
@@ -255,7 +359,8 @@
             
             prevBtn.addEventListener('click', () => {
                 const isMobile = window.innerWidth <= 768;
-                const modulesPerScreen = isMobile ? 2 : 4;
+                const isSmallMobile = window.innerWidth <= 400;
+                const modulesPerScreen = isSmallMobile ? 1 : (isMobile ? 2 : 4);
                 const scrollAmount = 100 / modulesPerScreen;
                 currentPosition = Math.max(0, currentPosition - scrollAmount);
                 updateModulesPosition();
@@ -263,7 +368,8 @@
             
             nextBtn.addEventListener('click', () => {
                 const isMobile = window.innerWidth <= 768;
-                const modulesPerScreen = isMobile ? 2 : 4;
+                const isSmallMobile = window.innerWidth <= 400;
+                const modulesPerScreen = isSmallMobile ? 1 : (isMobile ? 2 : 4);
                 const moduleWidth = 100 / modulesPerScreen;
                 const totalWidth = (modules.length * moduleWidth) - 100;
                 const maxPosition = Math.max(0, totalWidth);
@@ -279,7 +385,8 @@
             // Позиционируем контейнер так, чтобы текущий модуль был виден
             function centerCurrentModule() {
                 const isMobile = window.innerWidth <= 768;
-                const modulesPerScreen = isMobile ? 2 : 4;
+                const isSmallMobile = window.innerWidth <= 400;
+                const modulesPerScreen = isSmallMobile ? 1 : (isMobile ? 2 : 4);
                 const moduleWidth = 100 / modulesPerScreen;
                 
                 // Вычисляем позицию для центрации текущего модуля
