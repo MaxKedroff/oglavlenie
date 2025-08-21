@@ -353,14 +353,15 @@
             }
             
             // Функция для расчета максимальной позиции прокрутки
-            function calculateMaxPosition() {
-                const isMobile = window.innerWidth <= 768;
-                const isSmallMobile = window.innerWidth <= 400;
-                modulesPerScreen = isSmallMobile ? 1 : (isMobile ? 2 : 4);
-                const moduleWidth = 100 / modulesPerScreen;
-                const totalWidth = (modules.length * moduleWidth) - 100;
-                maxPosition = Math.max(0, totalWidth);
-            }
+            // Функция для расчета максимальной позиции прокрутки
+			function calculateMaxPosition() {
+				    const isMobile = window.innerWidth <= 768;
+				    const isSmallMobile = window.innerWidth <= 400;
+				    modulesPerScreen = isSmallMobile ? 1 : (isMobile ? 2 : 4);
+				    const moduleWidth = 100 / modulesPerScreen;
+				    const totalWidth = (modules.length * moduleWidth) - 100;
+				    maxPosition = Math.max(0, totalWidth);
+				}
             
             // Функция для обновления позиции модулей
             function updateModulesPosition() {
@@ -378,48 +379,57 @@
             }
             
             // Обработчики кнопок навигации
-            prevBtn.addEventListener('click', () => {
-                const moduleWidth = 100 / modulesPerScreen;
-                currentPosition = Math.max(0, currentPosition - moduleWidth);
-                updateModulesPosition();
-            });
-            
-            nextBtn.addEventListener('click', () => {
-                const moduleWidth = 100 / modulesPerScreen;
-                currentPosition = Math.min(maxPosition, currentPosition + moduleWidth);
-                updateModulesPosition();
-            });
+            // Обработчики кнопок навигации
+			prevBtn.addEventListener('click', () => {
+			    const isSmallMobile = window.innerWidth <= 400;
+			    const moduleWidth = 100 / modulesPerScreen;
+			    const scrollStep = isSmallMobile ? moduleWidth : moduleWidth;
+			    
+			    currentPosition = Math.max(0, currentPosition - scrollStep);
+			    updateModulesPosition();
+			});
+			
+			nextBtn.addEventListener('click', () => {
+			    const isSmallMobile = window.innerWidth <= 400;
+			    const moduleWidth = 100 / modulesPerScreen;
+			    const scrollStep = isSmallMobile ? moduleWidth : moduleWidth;
+			    
+			    currentPosition = Math.min(maxPosition, currentPosition + scrollStep);
+			    updateModulesPosition();
+			});
             
             // Адаптация под мобильные устройства
-            function handleResize() {
-                const isMobile = window.innerWidth <= 768;
-                const isSmallMobile = window.innerWidth <= 400;
-                
-                // Пересчитываем максимальную позицию
-                calculateMaxPosition();
-                
-                // Обновляем ширину модулей
-                document.querySelectorAll('.module').forEach(module => {
-                    if (isSmallMobile) {
-                        // Для очень маленьких экранов стили уже заданы в CSS
-                        return;
-                    }
-                    
-                    module.style.width = isMobile ? 'calc(50% - 20px)' : 'calc(25% - 20px)';
-                    
-                    // Обновляем позицию соединительных линий
-                    const connector = module.querySelector('.connector');
-                    if (connector) {
-                        connector.style.right = isMobile ? '-14px' : '-24px';
-                        connector.style.width = isMobile ? '14px' : '24px';
-                    }
-                });
-                
-                // Сбрасываем позицию при изменении размера
-                currentPosition = 0;
-                updateModulesPosition();
-                updateCurrentCoursePosition();
-            }
+            // Адаптация под мобильные устройства
+function handleResize() {
+    const isMobile = window.innerWidth <= 768;
+    const isSmallMobile = window.innerWidth <= 400;
+    
+    // Пересчитываем максимальную позицию
+    calculateMaxPosition();
+    
+    // Обновляем ширину модулей
+    document.querySelectorAll('.module').forEach(module => {
+        if (isSmallMobile) {
+            // Для очень маленьких экранов устанавливаем ширину 100%
+            module.style.width = 'calc(100% - 20px)';
+            return;
+        }
+        
+        module.style.width = isMobile ? 'calc(50% - 20px)' : 'calc(25% - 20px)';
+        
+        // Обновляем позицию соединительных линий
+        const connector = module.querySelector('.connector');
+        if (connector) {
+            connector.style.right = isMobile ? '-14px' : '-24px';
+            connector.style.width = isMobile ? '14px' : '24px';
+        }
+    });
+    
+    // Сбрасываем позицию при изменении размера
+    currentPosition = 0;
+    updateModulesPosition();
+    updateCurrentCoursePosition();
+}
             
             // Создаем маркер текущего курса
             function createCurrentCourseMarker() {
@@ -460,27 +470,28 @@
             window.addEventListener('resize', handleResize);
             
             // Позиционируем контейнер так, чтобы текущий модуль был виден
-            function centerCurrentModule() {
-                const moduleWidth = 100 / modulesPerScreen;
-                
-                // Вычисляем позицию для центрации текущего модуля
-                currentPosition = Math.min(
-                    Math.max(0, currentModuleIndex * moduleWidth - (modulesPerScreen - 1) * moduleWidth / 2),
-                    maxPosition
-                );
-                
-                updateModulesPosition();
-                updateCurrentCoursePosition();
-            }
-            
-            centerCurrentModule();
-            
-            // Обновляем прогресс
-            updateProgress();
-            
-            // Обновляем видимость маркера при прокрутке
-            modulesWrapper.addEventListener('scroll', updateCurrentCoursePosition);
-        });
+            // Позиционируем контейнер так, чтобы текущий модуль был виден
+function centerCurrentModule() {
+    const isSmallMobile = window.innerWidth <= 400;
+    const moduleWidth = 100 / modulesPerScreen;
+    
+    // Для очень маленьких экранов центрируем по-другому
+    if (isSmallMobile) {
+        currentPosition = Math.min(
+            Math.max(0, currentModuleIndex * moduleWidth),
+            maxPosition
+        );
+    } else {
+        // Вычисляем позицию для центрации текущего модуля
+        currentPosition = Math.min(
+            Math.max(0, currentModuleIndex * moduleWidth - (modulesPerScreen - 1) * moduleWidth / 2),
+            maxPosition
+        );
+    }
+    
+    updateModulesPosition();
+    updateCurrentCoursePosition();
+}
     </script>
 </body>
 </html>
