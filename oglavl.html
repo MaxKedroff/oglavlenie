@@ -361,6 +361,9 @@
                 const totalWidth = (modules.length * moduleWidth) - 100;
                 maxPosition = Math.max(0, totalWidth);
             }
+
+			// Функция для расчета максимальной позиции прокрутки
+			
             
             // Функция для обновления позиции модулей
             function updateModulesPosition() {
@@ -384,11 +387,29 @@
                 updateModulesPosition();
             });
             
-            nextBtn.addEventListener('click', () => {
-                const moduleWidth = 100 / modulesPerScreen;
-                currentPosition = Math.min(maxPosition, currentPosition + moduleWidth);
-                updateModulesPosition();
-            });
+            // nextBtn.addEventListener('click', () => {
+            //     const moduleWidth = 100 / modulesPerScreen;
+            //     currentPosition = Math.min(maxPosition, currentPosition + moduleWidth);
+            //     updateModulesPosition();
+            // });
+
+			nextBtn.addEventListener('click', () => {
+			    const isSmallMobile = window.innerWidth <= 400;
+			    const moduleWidth = 100 / modulesPerScreen;
+			    
+			    // Для мобильных устройств ограничиваем максимальное количество кликов
+			    if (isSmallMobile) {
+			        const maxClicks = 9; // Максимум 9 кликов вправо
+			        const currentClick = Math.round(currentPosition / moduleWidth);
+			        
+			        if (currentClick >= maxClicks) {
+			            return; // Запрещаем дальнейшие клики
+			        }
+			    }
+			    
+			    currentPosition = Math.min(maxPosition, currentPosition + moduleWidth);
+			    updateModulesPosition();
+			});
             
             // Адаптация под мобильные устройства
             function handleResize() {
@@ -473,7 +494,7 @@
                 updateCurrentCoursePosition();
             }
             
-            centerCurrentModule();
+            //centerCurrentModule();
             
             // Обновляем прогресс
             updateProgress();
