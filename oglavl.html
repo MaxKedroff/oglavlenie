@@ -410,6 +410,67 @@
 			    currentPosition = Math.min(maxPosition, currentPosition + moduleWidth);
 			    updateModulesPosition();
 			});
+
+
+			// Добавьте этот код после обработчиков кнопок навигации
+
+// Функции для обработки свайпа
+let touchStartX = 0;
+let touchEndX = 0;
+let isSwiping = false;
+
+// Обработчик начала касания
+modulesWrapper.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    isSwiping = true;
+}, { passive: true });
+
+// Обработчик движения касания
+modulesWrapper.addEventListener('touchmove', function(e) {
+    if (!isSwiping) return;
+    touchEndX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+// Обработчик окончания касания
+modulesWrapper.addEventListener('touchend', function(e) {
+    if (!isSwiping) return;
+    isSwiping = false;
+    
+    const minSwipeDistance = 50; // Минимальная дистанция для определения свайпа
+    const swipeDistance = touchEndX - touchStartX;
+    
+    // Если дистанция слишком мала - не обрабатываем как свайп
+    if (Math.abs(swipeDistance) < minSwipeDistance) return;
+    
+    if (swipeDistance > 0) {
+        // Свайп вправо - листаем назад
+        const moduleWidth = 100 / modulesPerScreen;
+        currentPosition = Math.max(0, currentPosition - moduleWidth);
+        updateModulesPosition();
+    } else {
+        // Свайп влево - листаем вперед
+        const isSmallMobile = window.innerWidth <= 400;
+        const moduleWidth = 100 / modulesPerScreen;
+        
+        // Для мобильных устройств ограничиваем максимальное количество кликов
+        if (isSmallMobile) {
+            const maxClicks = 9; // Максимум 9 кликов вправо
+            const currentClick = Math.round(currentPosition / moduleWidth);
+            
+            if (currentClick >= maxClicks) {
+                return; // Запрещаем дальнейшие клики
+            }
+        }
+        
+        currentPosition = Math.min(maxPosition, currentPosition + moduleWidth);
+        updateModulesPosition();
+    }
+}, { passive: true });
+
+// Также добавим обработчик отмены касания
+modulesWrapper.addEventListener('touchcancel', function() {
+    isSwiping = false;
+}, { passive: true });
             
             // Адаптация под мобильные устройства
             function handleResize() {
