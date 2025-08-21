@@ -131,12 +131,12 @@
             <div class="progress-container" style="position: relative; width: 212px; height: 212px;">
                 <svg width="212" height="212" viewBox="0 0 100 100" style="transform: rotate(-90deg);">
                     <circle cx="50" cy="50" r="45" stroke="#e0e0e0" stroke-width="10" fill="none"/>
-                    <!-- Прогресс-бар (11% для 1 завершенного курса) -->
-                    <circle cx="50" cy="50" r="45" stroke="#4CAF50" stroke-width="10" fill="none" 
-                            stroke-dasharray="14.13 251.514" stroke-linecap="round"/>
+                    <!-- Прогресс-бар будет обновляться через JS -->
+                    <circle id="progressCircle" cx="50" cy="50" r="45" stroke="#4CAF50" stroke-width="10" fill="none" 
+                            stroke-dasharray="0 282.743" stroke-linecap="round"/>
                 </svg>
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 32px;">
-                    5%
+                <div id="progressPercent" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 32px;">
+                    0%
                 </div>
             </div>
         </div>
@@ -165,16 +165,25 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Функция для получения параметра из URL
+            function getUrlParameter(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+            
+            // Получаем текущий модуль из параметра URL
+            const currentModuleFromUrl = parseInt(getUrlParameter('current')) || 3; // По умолчанию 3 модуль
+            
             // Данные модулей с URL изображений для иконок
             const modules = [
                 { id: 1, name: "Трудовой договор", desc: "Начало стажировки", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D1%82%D1%80%D1%83%D0%B4%D0%BE%D0%B2%D0%BE%D0%B9%20%D0%B4%D0%BE%D0%B3%D0%BE%D0%B2%D0%BE%D1%80.png", current: false, completed: true },
                 { id: 2, name: "Модуль 1", desc: "Знакомство с Simple Coffee",icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C%209.png", current: false, completed: true },
-                { id: 3, name: "Модуль 2",desc: "Безопасность продовольствия", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C%2010.png", current: true, completed: false },
+                { id: 3, name: "Модуль 2",desc: "Безопасность продовольствия", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C%2010.png", current: false, completed: false },
                 { id: 4, name: "Практика", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%20%D0%B2%20%D0%BA%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D0%B5.png", desc: "Практическое занятие в кофейне",current: false, completed: false },
                 { id: 5, name: "Модуль 3",desc: "Заготовки", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C%203.png", current: false, completed: false},
                 { id: 6, name: "Практика", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%20%D0%B2%20%D0%BA%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D0%B5.png", desc: "Практическое занятие в кофейне",current: false, completed: false },
                 { id: 7, name: "Модуль 4",desc: "Приготовление блюд. Десертная витрина", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C%2012.png", current: false, completed: false},
-                { id: 8, name: "Практика", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%20%D0%B2%20%D0%BA%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D0%B5.png", desc: "Практическое занятие в кофейне",current: false, completed: false },
+                { id: 8, name: "Практика", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BF%D1%80%D0%B0%D0%BA%D1%83%D1%82%D0%B8%D0%BA%D0%B0%20%D0%B2%20%D0%BA%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D0%B5.png", desc: "Практическое занятие в кофейне",current: false, completed: false },
                 { id: 9, name: "Модуль 5",desc: "Культура обслуживания", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C%2013.png", current: false, completed: false },
                 { id: 10, name: "Практика", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%20%D0%B2%20%D0%BA%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D0%B5.png", desc: "Практическое занятие в кофейне",current: false, completed: false },
                 { id: 11, name: "Модуль 6",desc: "Уборка кофейни", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C%2014.png", current: false, completed: false },
@@ -188,16 +197,48 @@
                 { id: 19, name: "Обучение в треннинг-центре кофейному мастерству", icon: "https://storage.yandexcloud.net/audio-test-sc/oglavlenie/%D0%9E%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%B2%20%D1%82%D1%80%D0%B5%D0%BD%D0%B8%D0%BD%D0%B3-%D1%86%D0%B5%D0%BD%D1%82%D1%80%D0%B5%20%D0%BA%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D0%BE%D0%BC%D1%83%20%D0%BC%D0%B0%D1%81%D1%82%D0%B5%D1%80%D1%81%D1%82%D0%B2%D1%83.png", desc: "",current: false, completed: false },
             ];
 
+            // Обновляем статусы модулей на основе параметра из URL
+            modules.forEach(module => {
+                if (module.id < currentModuleFromUrl) {
+                    module.completed = true;
+                    module.current = false;
+                } else if (module.id === currentModuleFromUrl) {
+                    module.completed = false;
+                    module.current = true;
+                } else {
+                    module.completed = false;
+                    module.current = false;
+                }
+            });
+
             const modulesContainer = document.getElementById('modulesContainer');
             const currentCourseDiv = document.getElementById('currentCourse');
             const modulesWrapper = document.getElementById('modulesWrapper');
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
+            const progressCircle = document.getElementById('progressCircle');
+            const progressPercent = document.getElementById('progressPercent');
             
             let currentModuleIndex = modules.findIndex(m => m.current);
             let currentPosition = 0;
             let maxPosition = 0;
             let modulesPerScreen = 4; // По умолчанию для десктопа
+            
+            // Функция для обновления прогресса
+            function updateProgress() {
+                const completedCount = modules.filter(m => m.completed).length;
+                const totalCount = modules.length;
+                const progress = Math.round((completedCount / totalCount) * 100);
+                
+                // Обновляем текст прогресса
+                progressPercent.textContent = `${progress}%`;
+                
+                // Обновляем круг прогресса
+                const circumference = 2 * Math.PI * 45;
+                const dashoffset = circumference - (progress / 100) * circumference;
+                progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+                progressCircle.style.strokeDashoffset = dashoffset;
+            }
             
             // Генерация модулей
             modules.forEach((module, index) => {
@@ -432,6 +473,9 @@
             }
             
             centerCurrentModule();
+            
+            // Обновляем прогресс
+            updateProgress();
             
             // Обновляем видимость маркера при прокрутке
             modulesWrapper.addEventListener('scroll', updateCurrentCoursePosition);
